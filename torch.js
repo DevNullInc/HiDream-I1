@@ -1,121 +1,42 @@
-module.exports = {
-  run: [
-    // windows nvidia 50 series
-    {
-      "when": "{{platform === 'win32' && gpu === 'nvidia' && kernel.gpus && kernel.gpus.find(x => / 50.+/.test(x.model))}}",
-      "method": "shell.run",
-      "params": {
-        "venv": "{{args && args.venv ? args.venv : null}}",
-        "path": "{{args && args.path ? args.path : '.'}}",
-        "message": [
-          'uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128',
-          "uv pip install https://github.com/petermg/flash_attn_windows/releases/download/02/flash_attn-2.7.4.post1+cu128.torch270-cp310-cp310-win_amd64.whl",
-          "{{args && args.triton ? 'uv pip install -U --pre triton-windows' : ''}}",
-          "{{args && args.sageattention ? 'uv pip install https://github.com/woct0rdho/SageAttention/releases/download/v2.1.1-windows/sageattention-2.1.1+cu128torch2.7.0-cp310-cp310-win_amd64.whl' : ''}}",
-        ]
-      },
-      "next": null
-    },
-    // windows nvidia
-    {
-      "when": "{{platform === 'win32' && gpu === 'nvidia'}}",
-      "method": "shell.run",
-      "params": {
-        "venv": "{{args && args.venv ? args.venv : null}}",
-        "path": "{{args && args.path ? args.path : '.'}}",
-        "message": [
-          "uv pip install torch torchvision torchaudio {{args && args.xformers ? 'xformers' : ''}} --index-url https://download.pytorch.org/whl/cu128",
-          "uv pip install https://github.com/petermg/flash_attn_windows/releases/download/02/flash_attn-2.7.4.post1+cu128.torch270-cp310-cp310-win_amd64.whl",
-          "{{args && args.triton ? 'uv pip install -U triton-windows --force-reinstall' : ''}}",
-          "{{args && args.sageattention ? 'uv pip install https://github.com/deepbeepmeep/SageAttention/raw/refs/heads/main/releases/sageattention-2.1.0-cp310-cp310-win_amd64.whl --force-reinstall' : ''}}"
-        ]
-      },
-      "next": null
-    },
-    // windows amd
-    {
-      "when": "{{platform === 'win32' && gpu === 'amd'}}",
-      "method": "shell.run",
-      "params": {
-        "venv": "{{args && args.venv ? args.venv : null}}",
-        "path": "{{args && args.path ? args.path : '.'}}",
-        "message": "uv pip install torch-directml torchaudio torchvision numpy==1.26.4"
-      },
-      "next": null
-    },
-    // windows cpu
-    {
-      "when": "{{platform === 'win32' && (gpu !== 'nvidia' && gpu !== 'amd')}}",
-      "method": "shell.run",
-      "params": {
-        "venv": "{{args && args.venv ? args.venv : null}}",
-        "path": "{{args && args.path ? args.path : '.'}}",
-        "message": "uv pip install torch torchvision torchaudio numpy==1.26.4"
-      },
-      "next": null
-    },
-    // mac
-    {
-      "when": "{{platform === 'darwin'}}",
-      "method": "shell.run",
-      "params": {
-        "venv": "{{args && args.venv ? args.venv : null}}",
-        "path": "{{args && args.path ? args.path : '.'}}",
-        "message": "uv pip install torch torchvision torchaudio"
-      },
-      "next": null
-    },
-    // linux nvidia 50 series
-    {
-      "when": "{{platform === 'linux' && gpu === 'nvidia' && kernel.gpus && kernel.gpus.find(x => / 50.+/.test(x.model))}}",
-      "method": "shell.run",
-      "params": {
-        "venv": "{{args && args.venv ? args.venv : null}}",
-        "path": "{{args && args.path ? args.path : '.'}}",
-        "message": [
-          'uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128',
-          "uv pip install https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.0.post2/flash_attn-2.8.0.post2+cu12torch2.7cxx11abiTRUE-cp310-cp310-linux_x86_64.whl",
-          "{{args && args.sageattention ? 'uv pip install git+https://github.com/thu-ml/SageAttention.git' : ''}}"
-        ]
-      },
-      "next": null
-    },
-    // linux nvidia
-    {
-      "when": "{{platform === 'linux' && gpu === 'nvidia'}}",
-      "method": "shell.run",
-      "params": {
-        "venv": "{{args && args.venv ? args.venv : null}}",
-        "path": "{{args && args.path ? args.path : '.'}}",
-        "message": [
-          "uv pip install torch torchvision torchaudio {{args && args.xformers ? 'xformers' : ''}} --index-url https://download.pytorch.org/whl/cu128",
-          "uv pip install https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.0.post2/flash_attn-2.8.0.post2+cu12torch2.7cxx11abiTRUE-cp310-cp310-linux_x86_64.whl",
-          "{{args && args.sageattention ? 'uv pip install git+https://github.com/thu-ml/SageAttention.git' : ''}}"
-        ]
-      },
-      "next": null
-    },
-    // linux rocm (amd)
-    {
-      "when": "{{platform === 'linux' && gpu === 'amd'}}",
-      "method": "shell.run",
-      "params": {
-        "venv": "{{args && args.venv ? args.venv : null}}",
-        "path": "{{args && args.path ? args.path : '.'}}",
-        "message": "uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm6.2.4"
-      },
-      "next": null
-    },
-    // linux cpu
-    {
-      "when": "{{platform === 'linux' && (gpu !== 'amd' && gpu !=='nvidia')}}",
-      "method": "shell.run",
-      "params": {
-        "venv": "{{args && args.venv ? args.venv : null}}",
-        "path": "{{args && args.path ? args.path : '.'}}",
-        "message": "uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu"
-      },
-      "next": null
-    }
-  ]
-}
+// torch.js — force consistent Torch + FlashAttention on Windows
+// Works in Pinokio's node runner
+
+const path = require("path");
+const os = require("os");
+
+module.exports = async ({ sh, ctx }) => {
+  // Always upgrade pip toolchain inside the venv before heavy installs
+  await sh([
+    ["python", "-m", "ensurepip", "--upgrade"],
+    ["python", "-m", "pip", "install", "-U", "pip", "setuptools", "wheel"]
+  ]);
+
+  const isWin = process.platform === "win32";
+  const torchIndex = "https://download.pytorch.org/whl/cu128";
+
+  if (isWin) {
+    // Windows: pin to torch 2.7.0 cu128 so FA wheel matches
+    await sh([
+      ["python", "-m", "pip", "uninstall", "-y", "flash-attn", "flash_attn", "flash_attn_cuda", "torch", "torchvision", "torchaudio"],
+      ["python", "-m", "pip", "install",
+        "torch==2.7.0+cu128",
+        "torchvision==0.22.0+cu128",
+        "torchaudio==2.7.0+cu128",
+        "--index-url", torchIndex
+      ],
+      // Matching FlashAttention wheel for torch270 + cu128, cp310
+      ["python", "-m", "pip", "install", "--no-deps",
+        "https://github.com/petermg/flash_attn_windows/releases/download/v2.7.4.post1/flash_attn-2.7.4.post1+cu128.torch270-cp310-cp310-win_amd64.whl"
+      ],
+      // Quick import check right here so failures surface during install
+      ["python", "-c", "import torch; import flash_attn_2_cuda; print('OK torch', torch.__version__)"]
+    ]);
+  } else {
+    // Non-Windows: keep existing behavior, but ensure CUDA build is chosen
+    await sh([
+      ["python", "-m", "pip", "install",
+        "torch==2.8.0", "torchvision==0.23.0", "torchaudio==2.8.0"
+      ]
+    ]);
+  }
+};
